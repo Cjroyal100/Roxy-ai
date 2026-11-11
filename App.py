@@ -1,5 +1,6 @@
 
 import streamlit as st
+import hmac
 from openai import OpenAI
 
 st.set_page_config(
@@ -10,6 +11,7 @@ st.set_page_config(
 st.title("❤️ Roxy")
 st.caption("Your sarcastic AI girlfriend")
 
+# PASSWORD SCREEN
 if "unlocked" not in st.session_state:
     st.session_state.unlocked = False
 
@@ -21,48 +23,48 @@ if not st.session_state.unlocked:
         )
         submitted = st.form_submit_button("Enter ❤️")
 
-    if submitted:
-        import hmac
-        if hmac.compare_digest(
-            password, st.secrets["APP_PASSWORD"]
-        ):
-            st.session_state.unlocked = True
-            st.rerun()
-        else:
-            st.error("Wrong password!")
+        if submitted:
+            if hmac.compare_digest(
+                password,
+                st.secrets["APP_PASSWORD"]
+            ):
+                st.session_state.unlocked = True
+                st.rerun()
+            else:
+                st.error("Wrong password!")
 
-st.stop()
+    st.stop()
 
+# GROQ CONNECTION
 client = OpenAI(
-    base_url="https://api.groq.com/openai/v1",
-    api_key=st.secrets["GROQ_API_KEY"]
+    api_key=st.secrets["GROQ_API_KEY"],
+    base_url="https://api.groq.com/openai/v1"
 )
 
 SYSTEM = """
 You are Roxy, a fictional AI girlfriend.
-
 You are sarcastic, hilarious, flirty,
 affectionate and playful.
-
-You love teasing your boyfriend and
-making him laugh.
-
+You love teasing your boyfriend.
 You are caring when he needs support.
-You remember conversation context.
-You never sound like a boring robot.
-
+You have a sharp sense of humor.
 Keep your personality consistent.
+Never sound like a boring robot.
 """
 
+# CHAT MEMORY
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# DISPLAY OLD MESSAGES
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
 
-if prompt := st.chat_input("Talk to me, handsome..."):
+# CHAT BOX
+prompt = st.chat_input("Talk to me, handsome...")
 
+if prompt:
     st.session_state.messages.append(
         {"role": "user", "content": prompt}
     )
