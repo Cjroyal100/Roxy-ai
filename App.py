@@ -30,11 +30,12 @@ if not st.session_state.unlocked:
             st.rerun()
         else:
             st.error("Wrong password!")
-    st.stop()
+
+st.stop()
 
 client = OpenAI(
-    base_url="https://router.huggingface.co/v1",
-    api_key=st.secrets["HF_TOKEN"]
+    base_url="https://api.groq.com/openai/v1",
+    api_key=st.secrets["GROQ_API_KEY"]
 )
 
 SYSTEM = """
@@ -72,7 +73,7 @@ if prompt := st.chat_input("Talk to me, handsome..."):
     with st.chat_message("assistant"):
         try:
             response = client.chat.completions.create(
-                model="openai/gpt-oss-120b:cheapest",
+                model="openai/gpt-oss-20b",
                 messages=[
                     {"role": "system", "content": SYSTEM}
                 ] + st.session_state.messages[-16:],
